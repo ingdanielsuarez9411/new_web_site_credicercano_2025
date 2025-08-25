@@ -1,3 +1,134 @@
+
+Necesito que crees un prototipo funcional (solo frontend) de un módulo de creación de campañas de whatsapp para notificaciones outbound. Necesito que esté compuesto de dos partes, la primera de importación de datos CSV o txt delimitado por tabulaciones, y la segunda parte; la selección de la plantilla aprobada por meta, crea al menos 3 tipos de plantilla (contexto servicios financieros de Libranza para pensionados o empleados del estado) y dejalos en modo previsualización. No es necesario que sea funcional y conectado a META, pero hazlo con el mismo look and feel de WhatsApp META business manager.
+
+Te voy a crear un prototipo funcional del módulo de creación de campañas de WhatsApp con el look and feel de Meta Business Manager. Incluirá la importación de datos y selección de plantillas para servicios financieros de libranza.
+
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+He creado un prototipo funcional completo del módulo de creación de campañas de WhatsApp con las siguientes características:
+
+Funcionalidades Implementadas:
+🔄 Paso 1: Importación de Datos
+Interfaz de drag & drop para archivos CSV y TXT delimitado por tabulaciones
+Validación y preview de los datos importados
+Tabla con visualización de los contactos cargados
+Datos de ejemplo precargados para demostración
+📋 Paso 2: Selección de Plantillas
+Incluye 3 plantillas específicas para servicios financieros de libranza:
+
+Libranza - Aprobación de Crédito: Para notificar aprobaciones con botones de acción
+Libranza - Recordatorio de Pago: Para recordatorios de vencimiento
+Libranza - Oferta Preaprobada: Para campañas de marketing a empleados del estado
+👁️ Paso 3: Previsualización y Configuración
+Vista previa realista con el look de WhatsApp
+Sustitución automática de variables dinámicas
+Configuración final de la campaña
+Resumen completo antes del envío
+Características del Diseño:
+✅ Look & Feel de Meta Business Manager - Colores, tipografías y componentes similares
+✅ Interfaz intuitiva - Proceso paso a paso con indicador de progreso
+✅ Responsive - Adaptable a diferentes tamaños de pantalla
+✅ Vista previa realística - Mensajes que se ven como en WhatsApp real
+✅ Validaciones - Estados de plantillas aprobadas/pendientes
+✅ Variables dinámicas - Personalización automática con datos del CSV
+
+El prototipo simula todo el flujo completo de creación de campañas, desde la importación hasta la configuración final, con datos de ejemplo específicos para el contexto de libranzas a pensionados y empleados del estado.
+
+excelente código pero veo que usaste react, necesito que lo migres todo a javascript para poderlo ejecutar desde una app en HTML
+
+Perfecto, voy a migrar todo el código de React a JavaScript vanilla para que puedas ejecutarlo directamente en HTML.
+
+
+Realizando cambios...
+Artefacto interactivo ∙ Versión 2 
+Continuar
+
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo ∙ Versión 3 
+¡Perfecto! He completado la migración a JavaScript vanilla. Ahora tienes un módulo completamente funcional en HTML/CSS/JS que puedes ejecutar directamente en cualquier navegador.
+
+Características Principales:
+✅ Funcionalidades Implementadas:
+Importación de Datos - Carga de archivos CSV/TXT con preview de datos
+Plantillas Preconfiguradas - 3 plantillas específicas para libranzas
+Vista Previa de WhatsApp - Simulación realista del chat
+Variables Dinámicas - Sustitución automática de datos
+Flujo Paso a Paso - Navegación intuitiva con validaciones
+Look & Feel Meta Business - Diseño fiel al original
+🎨 Características del Diseño:
+Sin dependencias externas excepto Lucide para iconos
+Responsive design que funciona en móviles y desktop
+Animaciones suaves y transiciones
+Estados de validación y mensajes de error/éxito
+Datos de ejemplo precargados para demostración
+📱 Templates Incluidos:
+Aprobación de Crédito - Con botones de acción
+Recordatorio de Pago - Notificación simple
+Oferta Preaprobada - Marketing con botones interactivos
+🚀 Cómo usar:
+Guarda el código como archivo .html
+Ábrelo en cualquier navegador
+Sube un archivo CSV o usa los datos de ejemplo
+Selecciona una plantilla y ve la vista previa
+Configura el nombre de campaña y programa el envío
+El código está completamente autocontenido y listo para usar. ¿Te gustaría que ajuste algún aspecto específico del diseño o funcionalidad?
+
+No dejes condicionados los pasos, dejalos que el usuario navegue sin dependencia del anterior paso
+
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+
+Módulo de Creación de Campañas WhatsApp
+Artefacto interactivo 
+¡Perfecto! He eliminado todas las dependencias entre pasos. Ahora el usuario puede navegar libremente por toda la aplicación sin restricciones:
+
+Cambios Realizados:
+🔓 Navegación Libre:
+Steps clicables - El usuario puede hacer clic en cualquier paso del progress bar
+Botones siempre habilitados - No hay botones deshabilitados condicionalmente
+Sin validaciones bloqueantes - El usuario puede avanzar sin completar pasos anteriores
+🎯 Funcionalidades Mejoradas:
+Paso 1 (Importar Datos):
+Funciona independientemente
+El usuario puede subir datos en cualquier momento
+Paso 2 (Plantillas):
+Accesible sin importar datos
+Las plantillas se pueden seleccionar libremente
+Preview funciona con datos demo si no hay datos importados
+Paso 3 (Revisar y Enviar):
+Se adapta automáticamente al estado actual
+Muestra "Sin seleccionar" si faltan elementos
+Permite programar campañas parciales
+✨ Características de la Nueva Navegación:
+Progress bar interactivo - Clic directo en cualquier paso
+Validaciones inteligentes - Avisos informativos sin bloqueos
+Estados adaptativos - La interfaz se ajusta según lo que esté configurado
+Datos demo automáticos - Para preview cuando no hay datos real
+
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -600,17 +731,17 @@
         <!-- Progress Bar -->
         <div class="progress-bar">
             <div class="progress-steps">
-                <div class="progress-step">
+                <div class="progress-step" onclick="goToStep(1)" style="cursor: pointer;">
                     <div class="step-number active" id="step1-number">1</div>
                     <span class="step-text active" id="step1-text">Importar Datos</span>
                 </div>
                 <div class="step-divider"></div>
-                <div class="progress-step">
+                <div class="progress-step" onclick="goToStep(2)" style="cursor: pointer;">
                     <div class="step-number inactive" id="step2-number">2</div>
                     <span class="step-text inactive" id="step2-text">Seleccionar Plantilla</span>
                 </div>
                 <div class="step-divider"></div>
-                <div class="progress-step">
+                <div class="progress-step" onclick="goToStep(3)" style="cursor: pointer;">
                     <div class="step-number inactive" id="step3-number">3</div>
                     <span class="step-text inactive" id="step3-text">Revisar y Enviar</span>
                 </div>
@@ -696,7 +827,7 @@
                     <button class="btn btn-secondary" onclick="goToStep(1)">
                         Volver
                     </button>
-                    <button class="btn btn-primary" id="continue-step3" disabled onclick="goToStep(3)">
+                    <button class="btn btn-primary" id="continue-step3" onclick="goToStep(3)">
                         Continuar a Revisión
                     </button>
                 </div>
@@ -750,7 +881,7 @@
                     <button class="btn btn-secondary" onclick="goToStep(2)">
                         Volver
                     </button>
-                    <button class="btn btn-success" id="schedule-campaign" disabled onclick="scheduleCampaign()">
+                    <button class="btn btn-success" id="schedule-campaign" onclick="scheduleCampaign()">
                         <i data-lucide="play"></i>
                         Programar Campaña
                     </button>
@@ -854,10 +985,9 @@
             // File upload handler
             document.getElementById('file-input').addEventListener('change', handleFileUpload);
             
-            // Campaign name input handler
+            // Campaign name input handler - removed validation
             document.getElementById('campaign-name').addEventListener('input', function() {
-                const scheduleBtn = document.getElementById('schedule-campaign');
-                scheduleBtn.disabled = !this.value.trim();
+                // Optional: You can add real-time feedback here if needed
             });
             
             // Render templates
@@ -989,9 +1119,6 @@
             });
             event.currentTarget.classList.add('selected');
             
-            // Enable continue button
-            document.getElementById('continue-step3').disabled = false;
-            
             // Show preview
             showTemplatePreview();
         }
@@ -1111,7 +1238,7 @@
             updateProgress(step);
             currentStep = step;
             
-            // Special handling for step 3
+            // Always populate step 3 when accessed
             if (step === 3) {
                 populateStep3();
             }
@@ -1140,38 +1267,71 @@
             const audienceSummary = document.getElementById('audience-summary');
             const finalPreview = document.getElementById('final-preview');
             
-            // Populate audience summary
+            // Populate audience summary with default values if no data
+            const contactCount = importedData.length > 0 ? importedData.length - 1 : 0;
+            const templateName = selectedTemplate?.name || 'Ninguna seleccionada';
+            
             audienceSummary.innerHTML = `
                 <div class="summary-item">
                     <span>Total contactos:</span>
-                    <span class="summary-value">${importedData.length - 1}</span>
+                    <span class="summary-value">${contactCount}</span>
                 </div>
                 <div class="summary-item">
                     <span>Plantilla seleccionada:</span>
-                    <span class="summary-value">${selectedTemplate?.name || 'Ninguna'}</span>
+                    <span class="summary-value">${templateName}</span>
                 </div>
                 <div class="summary-item">
                     <span>Estado plantilla:</span>
-                    <span class="summary-value" style="color: #10b981;">✅ Aprobada</span>
+                    <span class="summary-value" style="color: ${selectedTemplate ? '#10b981' : '#6b7280'};">
+                        ${selectedTemplate ? '✅ Aprobada' : '⚠️ Sin seleccionar'}
+                    </span>
                 </div>
             `;
             
-            // Populate final preview
-            if (selectedTemplate && previewContact) {
-                finalPreview.innerHTML = renderWhatsAppPreview(selectedTemplate, previewContact);
+            // Populate final preview with demo data if needed
+            if (selectedTemplate) {
+                const demoContact = previewContact || ['Cliente Demo', '+573001234567', 'Pensionado', '15000000', '1.5'];
+                finalPreview.innerHTML = renderWhatsAppPreview(selectedTemplate, demoContact);
+            } else {
+                finalPreview.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">Selecciona una plantilla para ver la vista previa</p>';
             }
         }
 
         function scheduleCampaign() {
             const campaignName = document.getElementById('campaign-name').value.trim();
+            const contactCount = importedData.length > 0 ? importedData.length - 1 : 0;
+            const templateName = selectedTemplate?.name || 'Sin plantilla';
             
+            // Basic validation with user-friendly messages
             if (!campaignName) {
-                alert('Por favor, ingresa un nombre para la campaña');
+                alert('⚠️ Por favor, ingresa un nombre para la campaña');
                 return;
             }
             
-            // Simulate campaign scheduling
-            alert(`✅ Campaña "${campaignName}" programada exitosamente!\n\nDetalles:\n• ${importedData.length - 1} contactos\n• Plantilla: ${selectedTemplate.name}\n• Estado: En cola de envío\n\nPodrás monitorear el progreso en la sección de campañas activas.`);
+            if (contactCount === 0) {
+                if (confirm('⚠️ No has importado contactos. ¿Deseas programar la campaña de todas formas para configurar más tarde?')) {
+                    // Allow proceeding without contacts
+                } else {
+                    return;
+                }
+            }
+            
+            if (!selectedTemplate) {
+                if (confirm('⚠️ No has seleccionado una plantilla. ¿Deseas programar la campaña de todas formas para configurar más tarde?')) {
+                    // Allow proceeding without template
+                } else {
+                    return;
+                }
+            }
+            
+            // Success message
+            let message = `✅ Campaña "${campaignName}" programada exitosamente!\n\nDetalles:\n`;
+            message += `• ${contactCount} contactos\n`;
+            message += `• Plantilla: ${templateName}\n`;
+            message += `• Estado: ${contactCount > 0 && selectedTemplate ? 'En cola de envío' : 'Pendiente de configuración'}\n\n`;
+            message += 'Podrás monitorear el progreso en la sección de campañas activas.';
+            
+            alert(message);
             
             // Reset form (optional)
             if (confirm('¿Deseas crear una nueva campaña?')) {
