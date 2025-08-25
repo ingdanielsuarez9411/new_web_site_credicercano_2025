@@ -1,518 +1,1183 @@
-import React, { useState } from 'react';
-import { Upload, FileText, MessageSquare, Eye, Users, CheckCircle, AlertTriangle, Play, Download } from 'lucide-react';
-
-const WhatsAppCampaignModule = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [importedData, setImportedData] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [campaignName, setCampaignName] = useState('');
-  const [previewContact, setPreviewContact] = useState(null);
-
-  // Plantillas predefinidas para servicios financieros de libranza
-  const templates = [
-    {
-      id: 'libranza_aprobacion',
-      name: 'Libranza - Aprobación de Crédito',
-      category: 'UTILITY',
-      status: 'APPROVED',
-      components: [
-        {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: '✅ ¡Felicitaciones {{1}}!'
-        },
-        {
-          type: 'BODY',
-          text: 'Su solicitud de crédito de libranza por *${{1}}* ha sido aprobada.\n\n📋 *Detalles:*\n• Valor: ${{1}}\n• Cuotas: {{2}} meses\n• Valor cuota: ${{3}}\n• Tasa: {{4}}% E.A.\n\nPara continuar con el proceso, responda *SÍ* a este mensaje o comuníquese al {{5}}.'
-        },
-        {
-          type: 'FOOTER',
-          text: 'Banco LibranzaFácil - Tu crédito al instante'
-        },
-        {
-          type: 'BUTTONS',
-          buttons: [
-            { type: 'QUICK_REPLY', text: 'Acepto' },
-            { type: 'PHONE_NUMBER', text: 'Llamar', phone_number: '+57123456789' }
-          ]
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Creación de Campañas WhatsApp</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-      ]
-    },
-    {
-      id: 'libranza_recordatorio',
-      name: 'Libranza - Recordatorio de Pago',
-      category: 'UTILITY',
-      status: 'APPROVED',
-      components: [
-        {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: '💰 Recordatorio de Pago'
-        },
-        {
-          type: 'BODY',
-          text: 'Estimado/a {{1}},\n\nLe recordamos que su cuota de libranza vence el *{{2}}*.\n\n📋 *Información del pago:*\n• Valor cuota: ${{3}}\n• Fecha vencimiento: {{2}}\n• Descuento automático: {{4}}\n\nSi tiene alguna consulta, contáctenos al {{5}}.'
-        },
-        {
-          type: 'FOOTER',
-          text: 'Banco LibranzaFácil - Pagos seguros'
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
         }
-      ]
-    },
-    {
-      id: 'libranza_preaprobado',
-      name: 'Libranza - Oferta Preaprobada',
-      category: 'MARKETING',
-      status: 'APPROVED',
-      components: [
-        {
-          type: 'HEADER',
-          format: 'TEXT',
-          text: '🎉 ¡Oferta Especial para {{1}}!'
-        },
-        {
-          type: 'BODY',
-          text: 'Como *{{1}}* del estado, tiene un crédito preaprobado.\n\n💳 *Su oferta:*\n• Monto disponible: Hasta ${{2}}\n• Tasa preferencial: {{3}}% E.A.\n• Sin fiador ni papeleos\n• Descuento directo de nómina\n\n¡Solicítelo ya! Responda *QUIERO* o llame al {{4}}.'
-        },
-        {
-          type: 'FOOTER',
-          text: 'Oferta válida hasta {{1}} - LibranzaFácil'
-        },
-        {
-          type: 'BUTTONS',
-          buttons: [
-            { type: 'QUICK_REPLY', text: 'Quiero mi crédito' },
-            { type: 'QUICK_REPLY', text: 'Más información' }
-          ]
+
+        .container {
+            min-height: 100vh;
         }
-      ]
-    }
-  ];
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        let data = [];
-        
-        if (file.name.endsWith('.csv')) {
-          data = text.split('\n').map(row => row.split(','));
-        } else {
-          data = text.split('\n').map(row => row.split('\t'));
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
         }
-        
-        // Simular datos de ejemplo si el archivo está vacío
-        if (data.length <= 1 || !data[1]) {
-          data = [
-            ['nombre', 'telefono', 'tipo_empleado', 'monto_preaprobado', 'tasa'],
-            ['María García', '+573001234567', 'Pensionado', '15000000', '1.5'],
-            ['Carlos Pérez', '+573007654321', 'Empleado Público', '20000000', '1.3'],
-            ['Ana López', '+573009876543', 'Pensionado', '12000000', '1.5'],
-            ['Luis Torres', '+573005555555', 'Empleado Público', '18000000', '1.3']
-          ];
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        
-        setImportedData(data);
-        setPreviewContact(data[1]);
-      };
-      reader.readAsText(file);
-    }
-  };
 
-  const renderTemplatePreview = (template, contact) => {
-    if (!contact) return null;
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+        }
 
-    const substituteVariables = (text, contact) => {
-      if (!text) return '';
-      
-      // Variables de ejemplo basadas en el contacto
-      const variables = {
-        '{{1}}': contact[0] || 'Cliente', // nombre
-        '{{2}}': contact[3] || '15000000', // monto
-        '{{3}}': '36', // cuotas
-        '{{4}}': '450000', // valor cuota
-        '{{5}}': contact[4] || '1.5', // tasa
-        '{{6}}': '+57 (1) 123-4567' // teléfono
-      };
+        .header-title p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
 
-      let result = text;
-      Object.keys(variables).forEach(key => {
-        result = result.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), variables[key]);
-      });
-      
-      return result;
-    };
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
 
-    return (
-      <div className="bg-gray-50 rounded-lg p-4 max-w-sm mx-auto">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          {/* Header del chat */}
-          <div className="bg-green-500 text-white p-3 flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-green-500" />
-            </div>
-            <div>
-              <div className="font-semibold text-sm">LibranzaFácil</div>
-              <div className="text-xs opacity-90">En línea</div>
-            </div>
-          </div>
-          
-          {/* Mensaje */}
-          <div className="p-3">
-            <div className="bg-green-100 rounded-lg p-3 max-w-xs">
-              {template.components.map((component, idx) => (
-                <div key={idx} className="mb-2 last:mb-0">
-                  {component.type === 'HEADER' && (
-                    <div className="font-bold text-sm text-gray-800 mb-2">
-                      {substituteVariables(component.text, contact)}
-                    </div>
-                  )}
-                  {component.type === 'BODY' && (
-                    <div className="text-sm text-gray-800 whitespace-pre-wrap">
-                      {substituteVariables(component.text, contact)}
-                    </div>
-                  )}
-                  {component.type === 'FOOTER' && (
-                    <div className="text-xs text-gray-500 mt-2 italic">
-                      {substituteVariables(component.text, contact)}
-                    </div>
-                  )}
-                  {component.type === 'BUTTONS' && (
-                    <div className="mt-2 space-y-1">
-                      {component.buttons.map((button, btnIdx) => (
-                        <button
-                          key={btnIdx}
-                          className="block w-full text-left text-sm text-blue-600 border border-blue-200 rounded px-2 py-1 hover:bg-blue-50"
-                        >
-                          {button.text}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+        .progress-bar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 32rem;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .step-number.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .step-number.inactive {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .step-text {
+            font-size: 0.875rem;
+        }
+
+        .step-text.active {
+            color: #111827;
+        }
+
+        .step-text.inactive {
+            color: #6b7280;
+        }
+
+        .step-divider {
+            height: 1px;
+            background: #d1d5db;
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .content {
+            padding: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            max-width: 64rem;
+            margin: 0 auto;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .upload-icon {
+            width: 3rem;
+            height: 3rem;
+            color: #9ca3af;
+            margin: 0 auto 1rem;
+        }
+
+        .upload-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .success-banner {
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #065f46;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        table {
+            min-width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9fafb;
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .template-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: #d1d5db;
+        }
+
+        .template-card.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .template-header {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-title {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .template-badges {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-secondary {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
+        .template-preview {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        .preview-section {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .contact-info {
+            background: #f9fafb;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .whatsapp-preview {
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            max-width: 20rem;
+            margin: 0 auto;
+        }
+
+        .whatsapp-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .whatsapp-header {
+            background: #25d366;
+            color: white;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .whatsapp-avatar {
+            width: 2rem;
+            height: 2rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .whatsapp-contact-info {
+            flex: 1;
+        }
+
+        .whatsapp-contact-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .whatsapp-status {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .whatsapp-message {
+            padding: 0.75rem;
+        }
+
+        .message-bubble {
+            background: #dcf8c6;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            max-width: 18rem;
+        }
+
+        .message-header {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-body {
+            font-size: 0.875rem;
+            color: #374151;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        .message-footer {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .message-buttons {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .message-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .message-button:hover {
+            background: #eff6ff;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .summary-title {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-weight: 500;
+        }
+
+        .info-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .info-title {
+            font-weight: 500;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-list {
+            font-size: 0.875rem;
+            color: #1e40af;
+            list-style: none;
+        }
+
+        .info-list li {
+            margin-bottom: 0.25rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .more-contacts {
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>Crear Campaña WhatsApp</h1>
+                    <p>Configurar campaña de notificaciones outbound</p>
                 </div>
-              ))}
-              <div className="text-xs text-gray-500 mt-2 text-right">
-                {new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Crear Campaña WhatsApp</h1>
-            <p className="text-sm text-gray-600">Configurar campaña de notificaciones outbound</p>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <MessageSquare className="w-4 h-4" />
-            Meta Business Manager
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Steps */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-2xl">
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              currentStep >= 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
-            }`}>
-              1
-            </div>
-            <span className={`text-sm ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-500'}`}>
-              Importar Datos
-            </span>
-          </div>
-          <div className="h-px bg-gray-300 flex-1 mx-4"></div>
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              currentStep >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
-            }`}>
-              2
-            </div>
-            <span className={`text-sm ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-500'}`}>
-              Seleccionar Plantilla
-            </span>
-          </div>
-          <div className="h-px bg-gray-300 flex-1 mx-4"></div>
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              currentStep >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
-            }`}>
-              3
-            </div>
-            <span className={`text-sm ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-500'}`}>
-              Revisar y Enviar
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6">
-        {/* Step 1: Importar Datos */}
-        {currentStep === 1 && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Paso 1: Importar Base de Datos</h2>
-              
-              {importedData.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Subir archivo de contactos</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Sube un archivo CSV o TXT delimitado por tabulaciones con los datos de tus contactos
-                  </p>
-                  <label className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 cursor-pointer">
-                    <FileText className="w-4 h-4" />
-                    Seleccionar archivo
-                    <input
-                      type="file"
-                      accept=".csv,.txt"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Formatos soportados: CSV, TXT (máx. 10MB)
-                  </p>
+                <div class="header-meta">
+                    <i data-lucide="message-square"></i>
+                    Meta Business Manager
                 </div>
-              ) : (
-                <div>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-sm font-medium text-green-800">
-                        Archivo cargado exitosamente: {importedData.length - 1} contactos
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          {importedData[0]?.map((header, idx) => (
-                            <th key={idx} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {header}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {importedData.slice(1, 6).map((row, idx) => (
-                          <tr key={idx} className="hover:bg-gray-50">
-                            {row.map((cell, cellIdx) => (
-                              <td key={cellIdx} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {cell}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {importedData.length > 6 && (
-                      <div className="text-center py-3 text-sm text-gray-500">
-                        ... y {importedData.length - 6} contactos más
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-6">
-                    <button
-                      onClick={() => setCurrentStep(2)}
-                      className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                      Continuar a Plantillas
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
-        )}
+        </div>
 
-        {/* Step 2: Seleccionar Plantilla */}
-        {currentStep === 2 && (
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Paso 2: Seleccionar Plantilla</h2>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                      selectedTemplate?.id === template.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTemplate(template)}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{template.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            template.status === 'APPROVED' 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {template.status === 'APPROVED' ? (
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                            ) : (
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                            )}
-                            {template.status}
-                          </span>
-                          <span className="text-xs text-gray-500">{template.category}</span>
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <div class="step-number active" id="step1-number">1</div>
+                    <span class="step-text active" id="step1-text">Importar Datos</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="progress-step">
+                    <div class="step-number inactive" id="step2-number">2</div>
+                    <span class="step-text inactive" id="step2-text">Seleccionar Plantilla</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="progress-step">
+                    <div class="step-number inactive" id="step3-number">3</div>
+                    <span class="step-text inactive" id="step3-text">Revisar y Enviar</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Step 1: Importar Datos -->
+            <div class="card" id="step1">
+                <h2 class="card-title">Paso 1: Importar Base de Datos</h2>
+                
+                <div id="upload-area" class="upload-area">
+                    <i data-lucide="upload" class="upload-icon"></i>
+                    <h3 class="upload-title">Subir archivo de contactos</h3>
+                    <p class="upload-description">
+                        Sube un archivo CSV o TXT delimitado por tabulaciones con los datos de tus contactos
+                    </p>
+                    <label class="btn btn-primary">
+                        <i data-lucide="file-text"></i>
+                        Seleccionar archivo
+                        <input type="file" accept=".csv,.txt" id="file-input" style="display: none;">
+                    </label>
+                    <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                        Formatos soportados: CSV, TXT (máx. 10MB)
+                    </p>
+                </div>
+
+                <div id="data-preview" class="hidden">
+                    <div class="success-banner">
+                        <div class="success-content">
+                            <i data-lucide="check-circle" style="color: #10b981;"></i>
+                            <span class="success-text" id="success-message">
+                                Archivo cargado exitosamente
+                            </span>
                         </div>
-                      </div>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-3">
-                      {template.components.find(c => c.type === 'BODY')?.text.substring(0, 100)}...
+                    <div class="table-container">
+                        <table id="data-table">
+                            <thead id="table-header"></thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                        <div id="more-contacts" class="more-contacts hidden"></div>
                     </div>
                     
-                    <button className="text-blue-500 text-sm hover:text-blue-600 flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      Vista previa
+                    <div>
+                        <button class="btn btn-primary" onclick="goToStep(2)">
+                            Continuar a Plantillas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Seleccionar Plantilla -->
+            <div class="card hidden" id="step2">
+                <h2 class="card-title">Paso 2: Seleccionar Plantilla</h2>
+                
+                <div class="templates-grid" id="templates-grid">
+                    <!-- Templates will be populated by JavaScript -->
+                </div>
+                
+                <div id="template-preview" class="preview-section hidden">
+                    <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-bottom: 1rem;">
+                        Vista Previa: <span id="selected-template-name"></span>
+                    </h3>
+                    <div class="preview-grid">
+                        <div>
+                            <h4 style="font-weight: 500; color: #111827; margin-bottom: 0.5rem;">Contacto de ejemplo:</h4>
+                            <div class="contact-info" id="contact-preview">
+                                <!-- Contact info will be populated -->
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 500; color: #111827; margin-bottom: 0.5rem;">Mensaje personalizado:</h4>
+                            <div id="whatsapp-preview">
+                                <!-- WhatsApp preview will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">
+                        Volver
                     </button>
-                  </div>
-                ))}
-              </div>
-              
-              {selectedTemplate && (
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Vista Previa: {selectedTemplate.name}</h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Contacto de ejemplo:</h4>
-                      <div className="bg-gray-50 rounded p-3 text-sm">
-                        <div><strong>Nombre:</strong> {previewContact?.[0] || 'Cliente'}</div>
-                        <div><strong>Teléfono:</strong> {previewContact?.[1] || '+573001234567'}</div>
-                        <div><strong>Tipo:</strong> {previewContact?.[2] || 'Pensionado'}</div>
-                        <div><strong>Monto:</strong> ${previewContact?.[3] || '15000000'}</div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Mensaje personalizado:</h4>
-                      {renderTemplatePreview(selectedTemplate, previewContact)}
-                    </div>
-                  </div>
+                    <button class="btn btn-primary" id="continue-step3" disabled onclick="goToStep(3)">
+                        Continuar a Revisión
+                    </button>
                 </div>
-              )}
-              
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Volver
-                </button>
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  disabled={!selectedTemplate}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  Continuar a Revisión
-                </button>
-              </div>
             </div>
-          </div>
-        )}
 
-        {/* Step 3: Revisar y Enviar */}
-        {currentStep === 3 && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Paso 3: Revisar y Configurar Campaña</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre de la campaña
-                  </label>
-                  <input
-                    type="text"
-                    value={campaignName}
-                    onChange={(e) => setCampaignName(e.target.value)}
-                    placeholder="Ej: Campaña Libranza Enero 2024"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+            <!-- Step 3: Revisar y Enviar -->
+            <div class="card hidden" id="step3">
+                <h2 class="card-title">Paso 3: Revisar y Configurar Campaña</h2>
                 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      Resumen de Audiencia
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total contactos:</span>
-                        <span className="font-medium">{importedData.length - 1}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Plantilla seleccionada:</span>
-                        <span className="font-medium">{selectedTemplate?.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Estado plantilla:</span>
-                        <span className="text-green-600 font-medium">✅ Aprobada</span>
-                      </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Nombre de la campaña</label>
+                        <input type="text" class="form-input" id="campaign-name" 
+                               placeholder="Ej: Campaña Libranza Enero 2024">
                     </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      Vista Previa Final
-                    </h3>
-                    {renderTemplatePreview(selectedTemplate, previewContact)}
-                  </div>
+                    
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <h3 class="summary-title">
+                                <i data-lucide="users"></i>
+                                Resumen de Audiencia
+                            </h3>
+                            <div id="audience-summary">
+                                <!-- Summary will be populated -->
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3 class="summary-title">
+                                <i data-lucide="eye"></i>
+                                Vista Previa Final
+                            </h3>
+                            <div id="final-preview">
+                                <!-- Final preview will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-banner">
+                        <h3 class="info-title">📋 Antes de enviar</h3>
+                        <ul class="info-list">
+                            <li>• Verifica que todos los datos estén correctos</li>
+                            <li>• La plantilla debe estar aprobada por Meta</li>
+                            <li>• Los mensajes se enviarán gradualmente</li>
+                            <li>• Podrás monitorear el progreso en tiempo real</li>
+                        </ul>
+                    </div>
                 </div>
                 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-medium text-blue-900 mb-2">📋 Antes de enviar</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Verifica que todos los datos estén correctos</li>
-                    <li>• La plantilla debe estar aprobada por Meta</li>
-                    <li>• Los mensajes se enviarán gradualmente</li>
-                    <li>• Podrás monitorear el progreso en tiempo real</li>
-                  </ul>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">
+                        Volver
+                    </button>
+                    <button class="btn btn-success" id="schedule-campaign" disabled onclick="scheduleCampaign()">
+                        <i data-lucide="play"></i>
+                        Programar Campaña
+                    </button>
                 </div>
-              </div>
-              
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Volver
-                </button>
-                <button
-                  disabled={!campaignName.trim()}
-                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                >
-                  <Play className="w-4 h-4" />
-                  Programar Campaña
-                </button>
-              </div>
             </div>
-          </div>
-        )}
-      </div>
+        </div>
     </div>
-  );
-};
 
-export default WhatsAppCampaignModule;
+    <script>
+        // Global state
+        let currentStep = 1;
+        let importedData = [];
+        let selectedTemplate = null;
+        let previewContact = null;
+
+        // Templates data
+        const templates = [
+            {
+                id: 'libranza_aprobacion',
+                name: 'Libranza - Aprobación de Crédito',
+                category: 'UTILITY',
+                status: 'APPROVED',
+                components: [
+                    {
+                        type: 'HEADER',
+                        format: 'TEXT',
+                        text: '✅ ¡Felicitaciones {{1}}!'
+                    },
+                    {
+                        type: 'BODY',
+                        text: 'Su solicitud de crédito de libranza por *${{1}}* ha sido aprobada.\n\n📋 *Detalles:*\n• Valor: ${{1}}\n• Cuotas: {{2}} meses\n• Valor cuota: ${{3}}\n• Tasa: {{4}}% E.A.\n\nPara continuar con el proceso, responda *SÍ* a este mensaje o comuníquese al {{5}}.'
+                    },
+                    {
+                        type: 'FOOTER',
+                        text: 'Banco LibranzaFácil - Tu crédito al instante'
+                    },
+                    {
+                        type: 'BUTTONS',
+                        buttons: [
+                            { type: 'QUICK_REPLY', text: 'Acepto' },
+                            { type: 'PHONE_NUMBER', text: 'Llamar', phone_number: '+57123456789' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'libranza_recordatorio',
+                name: 'Libranza - Recordatorio de Pago',
+                category: 'UTILITY',
+                status: 'APPROVED',
+                components: [
+                    {
+                        type: 'HEADER',
+                        format: 'TEXT',
+                        text: '💰 Recordatorio de Pago'
+                    },
+                    {
+                        type: 'BODY',
+                        text: 'Estimado/a {{1}},\n\nLe recordamos que su cuota de libranza vence el *{{2}}*.\n\n📋 *Información del pago:*\n• Valor cuota: ${{3}}\n• Fecha vencimiento: {{2}}\n• Descuento automático: {{4}}\n\nSi tiene alguna consulta, contáctenos al {{5}}.'
+                    },
+                    {
+                        type: 'FOOTER',
+                        text: 'Banco LibranzaFácil - Pagos seguros'
+                    }
+                ]
+            },
+            {
+                id: 'libranza_preaprobado',
+                name: 'Libranza - Oferta Preaprobada',
+                category: 'MARKETING',
+                status: 'APPROVED',
+                components: [
+                    {
+                        type: 'HEADER',
+                        format: 'TEXT',
+                        text: '🎉 ¡Oferta Especial para {{1}}!'
+                    },
+                    {
+                        type: 'BODY',
+                        text: 'Como *{{1}}* del estado, tiene un crédito preaprobado.\n\n💳 *Su oferta:*\n• Monto disponible: Hasta ${{2}}\n• Tasa preferencial: {{3}}% E.A.\n• Sin fiador ni papeleos\n• Descuento directo de nómina\n\n¡Solicítelo ya! Responda *QUIERO* o llame al {{4}}.'
+                    },
+                    {
+                        type: 'FOOTER',
+                        text: 'Oferta válida hasta {{1}} - LibranzaFácil'
+                    },
+                    {
+                        type: 'BUTTONS',
+                        buttons: [
+                            { type: 'QUICK_REPLY', text: 'Quiero mi crédito' },
+                            { type: 'QUICK_REPLY', text: 'Más información' }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            
+            // File upload handler
+            document.getElementById('file-input').addEventListener('change', handleFileUpload);
+            
+            // Campaign name input handler
+            document.getElementById('campaign-name').addEventListener('input', function() {
+                const scheduleBtn = document.getElementById('schedule-campaign');
+                scheduleBtn.disabled = !this.value.trim();
+            });
+            
+            // Render templates
+            renderTemplates();
+        });
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    let data = [];
+                    
+                    if (file.name.endsWith('.csv')) {
+                        data = text.split('\n').map(row => row.split(','));
+                    } else {
+                        data = text.split('\n').map(row => row.split('\t'));
+                    }
+                    
+                    // Simulate example data if file is empty
+                    if (data.length <= 1 || !data[1]) {
+                        data = [
+                            ['nombre', 'telefono', 'tipo_empleado', 'monto_preaprobado', 'tasa'],
+                            ['María García', '+573001234567', 'Pensionado', '15000000', '1.5'],
+                            ['Carlos Pérez', '+573007654321', 'Empleado Público', '20000000', '1.3'],
+                            ['Ana López', '+573009876543', 'Pensionado', '12000000', '1.5'],
+                            ['Luis Torres', '+573005555555', 'Empleado Público', '18000000', '1.3']
+                        ];
+                    }
+                    
+                    importedData = data;
+                    previewContact = data[1];
+                    showDataPreview();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function showDataPreview() {
+            document.getElementById('upload-area').classList.add('hidden');
+            document.getElementById('data-preview').classList.remove('hidden');
+            
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = `Archivo cargado exitosamente: ${importedData.length - 1} contactos`;
+            
+            // Populate table
+            const tableHeader = document.getElementById('table-header');
+            const tableBody = document.getElementById('table-body');
+            
+            // Clear existing content
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            // Add headers
+            const headerRow = document.createElement('tr');
+            importedData[0].forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHeader.appendChild(headerRow);
+            
+            // Add first 5 rows
+            const dataToShow = importedData.slice(1, 6);
+            dataToShow.forEach(row => {
+                const tr = document.createElement('tr');
+                row.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+            
+            // Show "more contacts" message if applicable
+            if (importedData.length > 6) {
+                const moreContacts = document.getElementById('more-contacts');
+                moreContacts.textContent = `... y ${importedData.length - 6} contactos más`;
+                moreContacts.classList.remove('hidden');
+            }
+        }
+
+        function renderTemplates() {
+            const templatesGrid = document.getElementById('templates-grid');
+            templatesGrid.innerHTML = '';
+            
+            templates.forEach(template => {
+                const templateCard = document.createElement('div');
+                templateCard.className = 'template-card';
+                templateCard.onclick = () => selectTemplate(template);
+                
+                const statusBadge = template.status === 'APPROVED' 
+                    ? '<span class="badge badge-success"><i data-lucide="check-circle" style="width: 12px; height: 12px; margin-right: 4px;"></i>APPROVED</span>'
+                    : '<span class="badge badge-warning"><i data-lucide="alert-triangle" style="width: 12px; height: 12px; margin-right: 4px;"></i>PENDING</span>';
+                
+                templateCard.innerHTML = `
+                    <div class="template-header">
+                        <div>
+                            <h3 class="template-title">${template.name}</h3>
+                            <div class="template-badges">
+                                ${statusBadge}
+                                <span class="badge-secondary">${template.category}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="template-preview">
+                        ${template.components.find(c => c.type === 'BODY')?.text.substring(0, 100)}...
+                    </div>
+                    <button class="btn" style="color: #3b82f6; padding: 0; background: none; border: none;">
+                        <i data-lucide="eye" style="width: 16px; height: 16px; margin-right: 4px;"></i>
+                        Vista previa
+                    </button>
+                `;
+                
+                templatesGrid.appendChild(templateCard);
+            });
+            
+            // Re-initialize Lucide icons for new content
+            lucide.createIcons();
+        }
+
+        function selectTemplate(template) {
+            selectedTemplate = template;
+            
+            // Update UI
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Enable continue button
+            document.getElementById('continue-step3').disabled = false;
+            
+            // Show preview
+            showTemplatePreview();
+        }
+
+        function showTemplatePreview() {
+            const previewSection = document.getElementById('template-preview');
+            const templateName = document.getElementById('selected-template-name');
+            const contactPreview = document.getElementById('contact-preview');
+            const whatsappPreview = document.getElementById('whatsapp-preview');
+            
+            previewSection.classList.remove('hidden');
+            templateName.textContent = selectedTemplate.name;
+            
+            // Show contact info
+            if (previewContact) {
+                contactPreview.innerHTML = `
+                    <div><strong>Nombre:</strong> ${previewContact[0] || 'Cliente'}</div>
+                    <div><strong>Teléfono:</strong> ${previewContact[1] || '+573001234567'}</div>
+                    <div><strong>Tipo:</strong> ${previewContact[2] || 'Pensionado'}</div>
+                    <div><strong>Monto:</strong> ${previewContact[3] || '15000000'}</div>
+                `;
+            }
+            
+            // Show WhatsApp preview
+            whatsappPreview.innerHTML = renderWhatsAppPreview(selectedTemplate, previewContact);
+        }
+
+        function renderWhatsAppPreview(template, contact) {
+            if (!contact) return '';
+            
+            const substituteVariables = (text, contact) => {
+                if (!text) return '';
+                
+                const variables = {
+                    '{{1}}': contact[0] || 'Cliente',
+                    '{{2}}': contact[3] || '15000000',
+                    '{{3}}': '36',
+                    '{{4}}': '450000',
+                    '{{5}}': contact[4] || '1.5',
+                    '{{6}}': '+57 (1) 123-4567'
+                };
+
+                let result = text;
+                Object.keys(variables).forEach(key => {
+                    const regex = new RegExp(key.replace(/[{}]/g, '\\            // Add first 5 rows
+            const dataToShow = importedData.slice(1, 6);
+            dataToShow.forEach(row'), 'g');
+                    result = result.replace(regex, variables[key]);
+                });
+                
+                return result;
+            };
+
+            let messageContent = '';
+            let buttonsContent = '';
+            
+            template.components.forEach(component => {
+                switch (component.type) {
+                    case 'HEADER':
+                        messageContent += `<div class="message-header">${substituteVariables(component.text, contact)}</div>`;
+                        break;
+                    case 'BODY':
+                        messageContent += `<div class="message-body">${substituteVariables(component.text, contact)}</div>`;
+                        break;
+                    case 'FOOTER':
+                        messageContent += `<div class="message-footer">${substituteVariables(component.text, contact)}</div>`;
+                        break;
+                    case 'BUTTONS':
+                        buttonsContent = '<div class="message-buttons">';
+                        component.buttons.forEach(button => {
+                            buttonsContent += `<button class="message-button">${button.text}</button>`;
+                        });
+                        buttonsContent += '</div>';
+                        break;
+                }
+            });
+
+            const currentTime = new Date().toLocaleTimeString('es-CO', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            return `
+                <div class="whatsapp-preview">
+                    <div class="whatsapp-container">
+                        <div class="whatsapp-header">
+                            <div class="whatsapp-avatar">
+                                <i data-lucide="message-square" style="width: 16px; height: 16px; color: #25d366;"></i>
+                            </div>
+                            <div class="whatsapp-contact-info">
+                                <div class="whatsapp-contact-name">LibranzaFácil</div>
+                                <div class="whatsapp-status">En línea</div>
+                            </div>
+                        </div>
+                        <div class="whatsapp-message">
+                            <div class="message-bubble">
+                                ${messageContent}
+                                ${buttonsContent}
+                                <div class="message-time">${currentTime}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToStep(step) {
+            // Hide all steps
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            
+            // Show target step
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            
+            // Update progress
+            updateProgress(step);
+            currentStep = step;
+            
+            // Special handling for step 3
+            if (step === 3) {
+                populateStep3();
+            }
+            
+            // Re-initialize Lucide icons
+            lucide.createIcons();
+        }
+
+        function updateProgress(step) {
+            // Reset all steps
+            for (let i = 1; i <= 3; i++) {
+                const stepNumber = document.getElementById(`step${i}-number`);
+                const stepText = document.getElementById(`step${i}-text`);
+                
+                if (i <= step) {
+                    stepNumber.className = 'step-number active';
+                    stepText.className = 'step-text active';
+                } else {
+                    stepNumber.className = 'step-number inactive';
+                    stepText.className = 'step-text inactive';
+                }
+            }
+        }
+
+        function populateStep3() {
+            const audienceSummary = document.getElementById('audience-summary');
+            const finalPreview = document.getElementById('final-preview');
+            
+            // Populate audience summary
+            audienceSummary.innerHTML = `
+                <div class="summary-item">
+                    <span>Total contactos:</span>
+                    <span class="summary-value">${importedData.length - 1}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Plantilla seleccionada:</span>
+                    <span class="summary-value">${selectedTemplate?.name || 'Ninguna'}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Estado plantilla:</span>
+                    <span class="summary-value" style="color: #10b981;">✅ Aprobada</span>
+                </div>
+            `;
+            
+            // Populate final preview
+            if (selectedTemplate && previewContact) {
+                finalPreview.innerHTML = renderWhatsAppPreview(selectedTemplate, previewContact);
+            }
+        }
+
+        function scheduleCampaign() {
+            const campaignName = document.getElementById('campaign-name').value.trim();
+            
+            if (!campaignName) {
+                alert('Por favor, ingresa un nombre para la campaña');
+                return;
+            }
+            
+            // Simulate campaign scheduling
+            alert(`✅ Campaña "${campaignName}" programada exitosamente!\n\nDetalles:\n• ${importedData.length - 1} contactos\n• Plantilla: ${selectedTemplate.name}\n• Estado: En cola de envío\n\nPodrás monitorear el progreso en la sección de campañas activas.`);
+            
+            // Reset form (optional)
+            if (confirm('¿Deseas crear una nueva campaña?')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
